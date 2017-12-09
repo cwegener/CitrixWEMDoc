@@ -46,6 +46,9 @@ V0.3
 Added Integrated Windows Auth Capability (Thanks George Spiers)
 Added input Validation check
 
+V0.4
+Added AppLocker Configuration Dump for the 4.5 release of WEM
+
 .LINK
 
 #>
@@ -1073,6 +1076,280 @@ $WEMSystemUtilies_Query = "SELECT [IdItem]
 $Query = $WEMSystemUtilies_Query
 $selection = "Name","Type","Value","State","IdSite"
 GetInfo
+#endregion
+
+
+#region AppLocker Policies
+
+# Add Heading to HTML Output
+$Heading = "AppLocker Settings"
+WriteHeading
+
+# Basic AppLocker Settings
+$Text = "Defined AppLocker Settings"
+$WEMAppLockerSettings_Query = "Select dbo.AppLockerSettings.Setting
+    , dbo.AppLockerSettings.IdSite
+	, dbo.AppLockerSettings.Value as Enabled
+	, dbo.AppLockerSettings.State
+FROM dbo.AppLockerSettings"
+
+$Query = $WEMAppLockerSettings_Query
+$Selection = "Setting","Enabled","State","IdSite"
+GetInfo
+
+# AppLocker Executable Rules - File
+$Text = "AppLocker Executable Rules - File"
+$WEMAppLockerExeRuleFile_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite 
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePathConditions.Path
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePathConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePathConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePathConditions.IdRule
+AND dbo.AppLockerRules.CollectionType='1'
+AND dbo.AppLockerRules.RuleType='0'"
+
+$Query = $WEMAppLockerExeRuleFile_Query
+$Selection = "RuleName","Description","Path","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Executable Rules - Publisher
+$Text = "AppLocker Executable Rules - Publisher"
+$WEMAppLockerExeRulePub_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+    , dbo.AppLockerRules.IdSite 
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePublisherConditions.FilePath
+	, dbo.AppLockerRulePublisherConditions.FileName
+	, dbo.AppLockerRulePublisherConditions.Product
+	, dbo.AppLockerRulePublisherConditions.Publisher
+	, dbo.AppLockerRulePublisherConditions.LowSection as Version
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePublisherConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePublisherConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePublisherConditions.IdRule
+AND dbo.AppLockerRules.CollectionType='1'
+AND dbo.AppLockerRules.RuleType='1'"
+
+$Query = $WEMAppLockerExeRulePub_Query
+$Selection = "RuleName","Description","FilePath","FileName","Product","Publisher","Version","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Executable Rules - Hash
+$Text = "AppLocker Executable Rules - Hash"
+$WEMAppLockerExeRuleHash_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+    , dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRuleFileHashes.Hash
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRuleHashConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRuleHashConditions,dbo.AppLockerRuleFileHashes
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRuleHashConditions.IdRule
+AND dbo.AppLockerRuleHashConditions.IdCondition = dbo.AppLockerRuleFileHashes.IdCondition
+AND dbo.AppLockerRules.CollectionType='1'
+AND dbo.AppLockerRules.RuleType='2'"
+
+$Query = $WEMAppLockerExeRuleHash_Query
+$Selection = "RuleName","Description","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Windows Installer Rules - File
+$Text = "AppLocker Windows Installer Rules - File"
+$WEMAppLockerWinInstallFile_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+    , dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePathConditions.Path
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePathConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePathConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePathConditions.IdRule
+AND dbo.AppLockerRules.CollectionType='2'
+AND dbo.AppLockerRules.RuleType='0'"
+
+$Query = $WEMAppLockerWinInstallFile_Query
+$Selection = "RuleName","Description","Path","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Windows Installer Rules - Publisher
+$Text = "AppLocker Windows Installer Rules - Publisher"
+$WEMAppLockerWinInstallPublisher_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+    , dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePublisherConditions.FilePath
+	, dbo.AppLockerRulePublisherConditions.FileName
+	, dbo.AppLockerRulePublisherConditions.Product
+	, dbo.AppLockerRulePublisherConditions.Publisher
+	, dbo.AppLockerRulePublisherConditions.LowSection as Version
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePublisherConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePublisherConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePublisherConditions.IdRule
+AND dbo.AppLockerRules.CollectionType='2'
+AND dbo.AppLockerRules.RuleType='1'"
+
+$Query = $WEMAppLockerWinInstallPublisher_Query
+$Selection = "RuleName","Description","FilePath","FileName","Product","Publisher","Version","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Windows Installer Rules - Hash
+$Text = "AppLocker Windows Installer Rules - Hash"
+$WEMAppLockerWinInstallHash_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRuleHashConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRuleHashConditions, dbo.AppLockerRuleFileHashes
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRuleHashConditions.IdRule
+AND dbo.AppLockerRuleHashConditions.IdCondition = dbo.AppLockerRuleFileHashes.IdCondition
+AND dbo.AppLockerRules.CollectionType='2'
+AND dbo.AppLockerRules.RuleType='2'"
+
+$Query = $WEMAppLockerWinInstallHash_Query
+$Selection = "RuleName","Description","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Script Rules - File
+$Text = "AppLocker Script Rules - File"
+$WEMAppLockerScriptFile_Query = "  SELECT dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePathConditions.Path
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePathConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePathConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePathConditions.IdRule
+AND dbo.AppLockerRules.CollectionType='3'
+AND dbo.AppLockerRules.RuleType='0'"
+
+$Query = $WEMAppLockerScriptFile_Query
+$Selection = "RuleName","Description","Path","Action","State","RuleException","IdSite"
+GetInfo
+
+
+# AppLocker Script Rules - Publisher
+$Text = "AppLocker Script Rules - Publisher"
+$WEMAppLockerScriptPub_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePublisherConditions.FilePath
+	, dbo.AppLockerRulePublisherConditions.FileName
+	, dbo.AppLockerRulePublisherConditions.Product
+	, dbo.AppLockerRulePublisherConditions.Publisher
+	, dbo.AppLockerRulePublisherConditions.LowSection as Version
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePublisherConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePublisherConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePublisherConditions.IdRule
+AND dbo.AppLockerRules.CollectionType='3'
+AND dbo.AppLockerRules.RuleType='1'"
+
+$Query = $WEMAppLockerScriptPub_Query
+$Selection = "RuleName","Description","FilePath","FileName","Product","Publisher","Version","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Script Rules - Hash
+$Text = "AppLocker Script Rules - Hash"
+$WEMAppLockerScriptHash_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRuleHashConditions.IsException as RuleException
+FROM dbo.AppLockerRules,dbo.AppLockerRuleHashConditions,dbo.AppLockerRuleFileHashes
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRuleHashConditions.IdRule
+AND dbo.AppLockerRuleHashConditions.IdCondition = dbo.AppLockerRuleFileHashes.IdCondition
+AND dbo.AppLockerRules.CollectionType='3'
+AND dbo.AppLockerRules.RuleType='2'"
+
+$Query = $WEMAppLockerScriptHash_Query
+$Selection = "RuleName","Description","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker Packaged Apps Rules
+$Text = "AppLocker  Packaged Apps Rules"
+$WEMAppLockerPackagedApps_Query = "SELECT dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePublisherConditions.Product
+	, dbo.AppLockerRulePublisherConditions.Publisher
+	, dbo.AppLockerRulePublisherConditions.LowSection as Version
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePublisherConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePublisherConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePublisherConditions.IdRule
+AND dbo.AppLockerRules.CollectionType='4'"
+
+$Query = $WEMAppLockerPackagedApps_Query
+$Selection = "RuleName","Description","Product","Publisher","Version","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker DLL Rules - File
+$Text = "AppLocker DLL Rules - File"
+$WEMAppLockerDLLFiles_Query = "Select dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePathConditions.Path
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePathConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePathConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePathConditions.IdRule
+AND CollectionType='5' 
+AND RuleType='0'"
+
+$Query = $WEMAppLockerDLLFiles_Query
+$Selection = "RuleName","Description","Path","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker DLL Rules - Publisher
+$Text = "AppLocker DLL Rules - Publisher"
+$WEMAppLockerDLLPub_Query = "Select dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRulePublisherConditions.FilePath
+	, dbo.AppLockerRulePublisherConditions.FileName
+	, dbo.AppLockerRulePublisherConditions.Product
+	, dbo.AppLockerRulePublisherConditions.Publisher
+	, dbo.AppLockerRulePublisherConditions.LowSection as Version
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRulePublisherConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRulePublisherConditions
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRulePublisherConditions.IdRule
+AND CollectionType='5' 
+AND RuleType='1'"
+
+$Query = $WEMAppLockerDLLPub_Query
+$Selection = "RuleName","Description","FilePath","FileName","Product","Publisher","Version","Action","State","RuleException","IdSite"
+GetInfo
+
+# AppLocker DLL Rules - Hash
+$Text = "AppLocker DLL Rules - Hash"
+$WEMAppLockerDLLHash_Query = "Select dbo.AppLockerRules.Name as RuleName
+	, dbo.AppLockerRules.IdSite
+	, dbo.AppLockerRules.Description
+	, dbo.AppLockerRules.Action
+	, dbo.AppLockerRules.State
+	, dbo.AppLockerRuleHashConditions.IsException as RuleException
+FROM dbo.AppLockerRules, dbo.AppLockerRuleHashConditions,dbo.AppLockerRuleFileHashes
+WHERE dbo.AppLockerRules.IdRule = dbo.AppLockerRuleHashConditions.IdRule
+AND dbo.AppLockerRuleFileHashes.IdCondition = dbo.AppLockerRuleHashConditions.IdCondition
+AND CollectionType='5' 
+AND RuleType='2'"
+
+$Query = $WEMAppLockerDLLHash_Query
+$Selection = "RuleName","Description","Action","State","RuleException","IdSite"
+GetInfo
+
 #endregion
 
 Start $OutFile
