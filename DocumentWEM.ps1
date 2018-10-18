@@ -190,6 +190,7 @@ function TestLegacySQLPoSHModules{
 	$SQLPowerShellModulesExist = (Get-Module -ListAvailable -Name Sqlps)
         if ($SQLPowerShellModulesExist.Name -eq "SQLPS") {
             Write-Host "SQL PowerShell Modules are Installed" -ForegroundColor Green 
+            Import-Module -Name SQLPS
             RunWemDoc
               } 
         else {
@@ -200,9 +201,10 @@ function TestLegacySQLPoSHModules{
 
 # Define SQL 2017 SSMS Powershell Modules Check
 function TestModernSQLPoSHModules  {
-    $SQLModuleExists = (Get-Module SqlServer)
+    $SQLModuleExists = (Get-Module -ListAvailable -Name SqlServer)
 	    if ($SQLModuleExists) {
 	       Write-Host "Modern SQL Module Installed" -ForegroundColor Green
+         Import-Module -Name SqlServer
          RunWemDoc
 	    } 
       elseif (!$SQLModuleExists){
